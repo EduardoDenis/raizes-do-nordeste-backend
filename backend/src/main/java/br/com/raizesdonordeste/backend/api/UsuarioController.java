@@ -1,9 +1,7 @@
 package br.com.raizesdonordeste.backend.api;
 
-import br.com.raizesdonordeste.backend.application.AtualizarUsuarioUseCase;
-import br.com.raizesdonordeste.backend.application.DeletarUsuarioUseCase;
+import br.com.raizesdonordeste.backend.application.*;
 import br.com.raizesdonordeste.backend.domain.Usuario;
-import br.com.raizesdonordeste.backend.application.CriarUsuarioUseCase;
 import br.com.raizesdonordeste.backend.infrastructure.UsuarioRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +14,19 @@ public class UsuarioController {
     private final UsuarioRepository repository;
     private final DeletarUsuarioUseCase deletarUsuarioUseCase;
     private final AtualizarUsuarioUseCase atualizarUsuarioUseCase;
+    private final ListarUsuariosUseCase listarUsuariosUseCase;
+    private final BuscarUsuarioPorIdUseCase buscarUsuarioPorIdUseCase;
 
     public UsuarioController(CriarUsuarioUseCase criarUsuarioUseCase, UsuarioRepository repository,
-                             DeletarUsuarioUseCase deletarUsuarioUseCase, AtualizarUsuarioUseCase atualizarUsuarioUseCase) {
+                             DeletarUsuarioUseCase deletarUsuarioUseCase, AtualizarUsuarioUseCase atualizarUsuarioUseCase,
+                             ListarUsuariosUseCase listarUsuariosUseCase, BuscarUsuarioPorIdUseCase buscarUsuarioPorIdUseCase) {
         this.criarUsuarioUseCase = criarUsuarioUseCase;
         this.repository = repository;
         this.deletarUsuarioUseCase = deletarUsuarioUseCase;
         this.atualizarUsuarioUseCase = atualizarUsuarioUseCase;
+        this.listarUsuariosUseCase = listarUsuariosUseCase;
+        this.buscarUsuarioPorIdUseCase = buscarUsuarioPorIdUseCase;
+
     }
 
     @PostMapping
@@ -34,6 +38,11 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<Iterable<Usuario>> listarUsuarios() {
         return ResponseEntity.ok(repository.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(buscarUsuarioPorIdUseCase.executar(id));
     }
 
     @DeleteMapping("/{id}")
