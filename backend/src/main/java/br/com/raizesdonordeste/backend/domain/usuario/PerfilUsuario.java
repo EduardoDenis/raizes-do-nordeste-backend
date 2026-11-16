@@ -1,4 +1,4 @@
-package br.com.raizesdonordeste.backend.domain;
+package br.com.raizesdonordeste.backend.domain.usuario;
 
 public enum PerfilUsuario {
     CLIENTE,

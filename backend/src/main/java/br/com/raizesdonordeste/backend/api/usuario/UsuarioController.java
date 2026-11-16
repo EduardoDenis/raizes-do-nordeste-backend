@@ -1,8 +1,8 @@
-package br.com.raizesdonordeste.backend.api;
+package br.com.raizesdonordeste.backend.api.usuario;
 
-import br.com.raizesdonordeste.backend.application.*;
-import br.com.raizesdonordeste.backend.domain.Usuario;
-import br.com.raizesdonordeste.backend.infrastructure.UsuarioRepository;
+import br.com.raizesdonordeste.backend.application.usuario.*;
+import br.com.raizesdonordeste.backend.domain.usuario.Usuario;
+import br.com.raizesdonordeste.backend.infrastructure.usuario.UsuarioRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

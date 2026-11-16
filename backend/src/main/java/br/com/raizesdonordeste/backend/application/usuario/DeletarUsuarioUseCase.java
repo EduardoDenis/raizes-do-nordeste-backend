@@ -1,6 +1,6 @@
-package br.com.raizesdonordeste.backend.application;
+package br.com.raizesdonordeste.backend.application.usuario;
 
-import br.com.raizesdonordeste.backend.infrastructure.UsuarioRepository;
+import br.com.raizesdonordeste.backend.infrastructure.usuario.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 @Service
