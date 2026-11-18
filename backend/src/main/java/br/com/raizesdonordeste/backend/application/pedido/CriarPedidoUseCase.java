@@ -14,7 +14,6 @@ public class CriarPedidoUseCase {
     }
 
     public Pedido executar(Pedido pedido) {
-        // Como o valor total não pode ficar nulo, e o pedido começa vazio, garantimos aqui:
         if (pedido.getValorTotal() == null) {
             pedido.setValorTotal(java.math.BigDecimal.ZERO);
         }
