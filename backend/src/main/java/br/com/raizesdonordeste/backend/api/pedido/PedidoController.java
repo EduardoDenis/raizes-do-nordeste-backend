@@ -14,22 +14,25 @@ public class PedidoController {
     private final BuscarPedidoPorIdUseCase buscarPedidoPorIdUseCase;
     private final AtualizarPedidoUseCase atualizarPedidoUseCase;
     private final DeletarPedidoUseCase deletarPedidoUseCase;
+    private final ProcessarPagamentoMockUseCase processarPagamentoMockUseCase;
 
     public PedidoController(CriarPedidoUseCase criarPedidoUseCase,
                             ListarPedidosUseCase listarPedidosUseCase,
                             BuscarPedidoPorIdUseCase buscarPedidoPorIdUseCase,
                             AtualizarPedidoUseCase atualizarPedidoUseCase,
-                            DeletarPedidoUseCase deletarPedidoUseCase) {
+                            DeletarPedidoUseCase deletarPedidoUseCase,
+    ProcessarPagamentoMockUseCase processarPagamentoMockUseCase) {
         this.criarPedidoUseCase = criarPedidoUseCase;
         this.listarPedidosUseCase = listarPedidosUseCase;
         this.buscarPedidoPorIdUseCase = buscarPedidoPorIdUseCase;
         this.atualizarPedidoUseCase = atualizarPedidoUseCase;
         this.deletarPedidoUseCase = deletarPedidoUseCase;
+        this.processarPagamentoMockUseCase = processarPagamentoMockUseCase;
     }
 
     @PostMapping
-    public ResponseEntity<Pedido> criarPedido(@RequestBody Pedido pedido) {
-        return ResponseEntity.ok(criarPedidoUseCase.executar(pedido));
+    public ResponseEntity<Pedido> criarPedido(@RequestBody br.com.raizesdonordeste.backend.api.pedido.dto.PedidoRequestDTO dto) {
+        return ResponseEntity.status(201).body(criarPedidoUseCase.executar(dto));
     }
 
     @GetMapping
@@ -45,6 +48,11 @@ public class PedidoController {
     @PutMapping("/{id}")
     public ResponseEntity<Pedido> atualizarPedido(@PathVariable Long id, @RequestBody Pedido pedido) {
         return ResponseEntity.ok(atualizarPedidoUseCase.executar(id, pedido));
+    }
+
+    @PutMapping("/{id}/pagamento")
+    public ResponseEntity<Pedido> processarPagamento(@PathVariable Long id, @RequestBody br.com.raizesdonordeste.backend.api.pedido.dto.PagamentoRequestDTO dto) {
+        return ResponseEntity.ok(processarPagamentoMockUseCase.executar(id, dto));
     }
 
     @DeleteMapping("/{id}")

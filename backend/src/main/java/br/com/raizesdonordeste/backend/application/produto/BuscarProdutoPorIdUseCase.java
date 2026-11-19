@@ -1,5 +1,6 @@
 package br.com.raizesdonordeste.backend.application.produto;
 
+import br.com.raizesdonordeste.backend.domain.exception.RecursoNaoEncontradoException;
 import br.com.raizesdonordeste.backend.domain.produto.Produto;
 import br.com.raizesdonordeste.backend.infrastructure.produto.ProdutoRepository;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,6 @@ public class BuscarProdutoPorIdUseCase {
 
     public Produto executar(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado com ID: " + id));
     }
 }
