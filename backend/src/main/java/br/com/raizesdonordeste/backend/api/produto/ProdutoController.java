@@ -3,6 +3,7 @@ package br.com.raizesdonordeste.backend.api.produto;
 import br.com.raizesdonordeste.backend.domain.produto.Produto;
 import br.com.raizesdonordeste.backend.application.produto.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class ProdutoController {
         this.deletarProdutoUseCase = deletarProdutoUseCase;
     }
 
+    @PreAuthorize("hasAnyAuthority('GERENTE', 'ADMINISTRADOR')")
     @PostMapping
     public ResponseEntity<Produto> criarProduto(@RequestBody Produto produto) {
         return ResponseEntity.ok(criarProdutoUseCase.executar(produto));

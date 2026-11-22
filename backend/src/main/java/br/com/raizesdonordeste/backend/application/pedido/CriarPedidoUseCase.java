@@ -16,6 +16,8 @@ import br.com.raizesdonordeste.backend.infrastructure.pedido.PedidoRepository;
 import br.com.raizesdonordeste.backend.infrastructure.produto.ProdutoRepository;
 import br.com.raizesdonordeste.backend.infrastructure.unidade.UnidadeRepository;
 import br.com.raizesdonordeste.backend.infrastructure.usuario.UsuarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ import java.math.BigDecimal;
 @Service
 public class CriarPedidoUseCase {
 
+    private static final Logger log = LoggerFactory.getLogger(CriarPedidoUseCase.class);
     private final PedidoRepository pedidoRepository;
     private final ItemPedidoRepository itemPedidoRepository;
     private final ProdutoRepository produtoRepository;
@@ -62,6 +65,7 @@ public class CriarPedidoUseCase {
         pedido.setValorTotal(BigDecimal.ZERO);
 
         pedido = pedidoRepository.save(pedido);
+        log.info("Pedido criado no canal {} com o ID: {}", pedido.getCanalPedido(), pedido.getId());
 
         BigDecimal valorTotal = BigDecimal.ZERO;
 

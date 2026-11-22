@@ -1,3 +1,4 @@
+// Aluno: Eduardo Denis de Andrade Silvalem - RU: 5028666
 package br.com.raizesdonordeste.backend;
 
 import org.springframework.boot.SpringApplication;
