@@ -1,0 +1,26 @@
+$kind: http-request
+url: "{{baseUrl}}/produtos"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{tokenCliente}}
+body:
+  type: json
+  content: |-
+    {
+      "nome": "Produto Proibido",
+      "precoBase": 10
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 403", function () { pm.response.to.have.status(403); });
+      pm.test("Erro no JSON padrao (error, message, timestamp, path)", function () {
+        const j = pm.response.json();
+        pm.expect(j.error).to.eql("ACESSO_NEGADO");
+        pm.expect(j).to.have.property("message");
+        pm.expect(j).to.have.property("timestamp");
+        pm.expect(j).to.have.property("path");
+      });
+    language: text/javascript
+order: 2000

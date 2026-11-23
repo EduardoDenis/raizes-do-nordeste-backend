@@ -1,5 +1,6 @@
 package br.com.raizesdonordeste.backend.api.pedido;
 
+import br.com.raizesdonordeste.backend.domain.pedido.CanalPedido;
 import br.com.raizesdonordeste.backend.domain.pedido.Pedido;
 import br.com.raizesdonordeste.backend.application.pedido.*;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,9 @@ public class PedidoController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<Pedido>> listarPedidos() {
-        return ResponseEntity.ok(listarPedidosUseCase.executar());
+    public ResponseEntity<Iterable<Pedido>> listarPedidos(
+            @RequestParam(required = false) CanalPedido canalPedido) {
+        return ResponseEntity.ok(listarPedidosUseCase.executar(canalPedido));
     }
 
     @GetMapping("/{id}")

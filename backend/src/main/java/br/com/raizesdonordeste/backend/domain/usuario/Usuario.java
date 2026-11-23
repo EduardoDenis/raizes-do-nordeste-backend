@@ -1,24 +1,27 @@
 package br.com.raizesdonordeste.backend.domain.usuario;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+// Esconde do JSON as propriedades herdadas de UserDetails (em especial "password", que e o hash da senha).
+@JsonIgnoreProperties({"password", "authorities", "username", "accountNonExpired",
+        "accountNonLocked", "credentialsNonExpired", "enabled"})
 @Entity
 @Table(name = "usuarios")
 public class Usuario implements org.springframework.security.core.userdetails.UserDetails {
 
     @Override
     public java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
-        if (this.perfil == PerfilUsuario.ADMINISTRADOR) {
-            return java.util.List.of(
-                    new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN"),
-                    new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")
-            );
-        } else {
-            return java.util.List.of(
-                    new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")
-            );
+        if (this.perfil == null) {
+            return java.util.List.of();
         }
+        // O perfil vira autoridade com o proprio nome (ex.: GERENTE), usado em @PreAuthorize("hasAnyAuthority(...)"),
+        // e tambem na forma ROLE_<PERFIL>, para quem preferir hasRole(...).
+        return java.util.List.of(
+                new org.springframework.security.core.authority.SimpleGrantedAuthority(this.perfil.name()),
+                new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + this.perfil.name())
+        );
     }
 
     @Override

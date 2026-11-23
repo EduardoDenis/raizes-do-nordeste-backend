@@ -1,0 +1,15 @@
+# Use this workspace to collaborate
+workspace:
+  id: ""
+
+localResources:
+  collections:
+    - ../backend/postman_collection.json
+  specs:
+    - ../backend/openapi.json
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/Raizes do Nordeste - API Back-End (Plano de Testes): dfb999d2-9630-4b0d-a8c0-b5bd64c600ed

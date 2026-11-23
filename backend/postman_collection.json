@@ -1,1219 +1,1076 @@
 {
-  "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI definition",
-    "version": "v0"
+    "name": "Raizes do Nordeste - API Back-End (Plano de Testes)",
+    "description": "Colecao do Plano de Testes. Execute as pastas na ordem (1 a 5), ou rode a colecao inteira no Collection Runner/newman. Pre-requisitos: API em http://localhost:8080 e banco com o script.sql aplicado (unidade 1, produtos 1-3 e estoque). Os usuarios sao criados automaticamente (e-mails unicos) e os tokens JWT ficam em variaveis da colecao.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "servers": [
+  "item": [
     {
-      "url": "http://localhost:8080",
-      "description": "Generated server url"
+      "name": "1 - Auth",
+      "item": [
+        {
+          "name": "SETUP - Registrar GERENTE (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registrar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registrar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Gerente Teste\",\n  \"email\": \"{{emailGerente}}\",\n  \"senha\": \"Senha@123\",\n  \"perfil\": \"GERENTE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cria um usuario GERENTE com e-mail unico a cada execucao. Rota publica."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"emailGerente\", \"gerente.\" + Date.now() + \"@teste.com\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201 (usuario criado)\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SETUP - Registrar CLIENTE (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registrar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registrar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente Teste\",\n  \"email\": \"{{emailCliente}}\",\n  \"senha\": \"Senha@123\",\n  \"perfil\": \"CLIENTE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"emailCliente\", \"cliente.\" + Date.now() + \"@teste.com\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201 (usuario criado)\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T01 - Login valido GERENTE (200 + accessToken)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailGerente}}\",\n  \"senha\": \"Senha@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Retorna accessToken JWT\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.accessToken).to.be.a(\"string\").and.not.empty;",
+                  "  pm.collectionVariables.set(\"tokenGerente\", j.accessToken);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SETUP - Login CLIENTE (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailCliente}}\",\n  \"senha\": \"Senha@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set(\"tokenCliente\", pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SETUP - Descobrir IDs dos usuarios (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenGerente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "const lista = pm.response.json();",
+                  "const g = lista.find(u => u.email === pm.collectionVariables.get(\"emailGerente\"));",
+                  "const c = lista.find(u => u.email === pm.collectionVariables.get(\"emailCliente\"));",
+                  "pm.test(\"Encontrou os usuarios criados\", function () { pm.expect(g).to.exist; pm.expect(c).to.exist; });",
+                  "pm.test(\"Senha nao e exposta na resposta\", function () { pm.expect(g).to.not.have.property(\"senha\"); pm.expect(g).to.not.have.property(\"password\"); });",
+                  "pm.collectionVariables.set(\"usuarioIdGerente\", g.id);",
+                  "pm.collectionVariables.set(\"usuarioIdCliente\", c.id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2 - Produtos",
+      "item": [
+        {
+          "name": "T02 - Criar produto como GERENTE (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenGerente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/produtos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "produtos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cuscuz Recheado\",\n  \"precoBase\": 18.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Produto criado com id\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.id).to.be.a(\"number\");",
+                  "  pm.expect(j.nome).to.eql(\"Cuscuz Recheado\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T03 - Listar produtos / cardapio (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/produtos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "produtos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Retorna lista de produtos\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j).to.be.an(\"array\").that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3 - Pedidos",
+      "item": [
+        {
+          "name": "T04 - Criar pedido valido no canal TOTEM (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"canalPedido\": \"TOTEM\",\n  \"unidadeId\": {{unidadeId}},\n  \"usuarioId\": {{usuarioIdCliente}},\n  \"itens\": [\n    { \"produtoId\": {{produtoId}}, \"quantidade\": 2 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Seed: produto 2 (Tapioca Rendada) custa R$ 15,00 -> 2 unidades = R$ 30,00. Abate 2 unidades do estoque da unidade 1."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Pedido criado com canal e status corretos\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.canalPedido).to.eql(\"TOTEM\");",
+                  "  pm.expect(j.status).to.eql(\"AGUARDANDO_PAGAMENTO\");",
+                  "  pm.expect(Number(j.valorTotal)).to.eql(30);",
+                  "  pm.collectionVariables.set(\"pedidoId\", j.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T05 - Consultar pedido por ID (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedidoId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Retorna o pedido criado\", function () { pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get(\"pedidoId\"))); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4 - Pagamentos (mock)",
+      "item": [
+        {
+          "name": "T06 - Pagamento mock APROVADO -> status PAGO (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}/pagamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedidoId}}",
+                "pagamento"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statusPagamento\": \"APROVADO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Status do pedido atualizado para PAGO\", function () { pm.expect(pm.response.json().status).to.eql(\"PAGO\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SETUP - Criar segundo pedido (para recusa) (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"canalPedido\": \"APP\",\n  \"unidadeId\": {{unidadeId}},\n  \"usuarioId\": {{usuarioIdCliente}},\n  \"itens\": [\n    { \"produtoId\": {{produtoId}}, \"quantidade\": 1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"pedidoRecusadoId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T07 - Pagamento mock RECUSADO -> status CANCELADO (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoRecusadoId}}/pagamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedidoRecusadoId}}",
+                "pagamento"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statusPagamento\": \"RECUSADO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Status do pedido atualizado para CANCELADO\", function () { pm.expect(pm.response.json().status).to.eql(\"CANCELADO\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5 - Erros e seguranca (cenarios negativos)",
+      "item": [
+        {
+          "name": "T08 - Acesso sem token (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"NAO_AUTENTICADO\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T09 - CLIENTE tenta criar produto (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/produtos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "produtos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Produto Proibido\",\n  \"precoBase\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"ACESSO_NEGADO\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T10 - Login com senha errada (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailGerente}}\",\n  \"senha\": \"senha-errada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"CREDENCIAIS_INVALIDAS\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T11 - Pedido sem canalPedido (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": {{unidadeId}},\n  \"usuarioId\": {{usuarioIdCliente}},\n  \"itens\": [\n    { \"produtoId\": {{produtoId}}, \"quantidade\": 1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 422\", function () { pm.response.to.have.status(422); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"CANAL_OBRIGATORIO\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T12 - Pedido com canalPedido invalido (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"canalPedido\": \"XYZ\",\n  \"unidadeId\": {{unidadeId}},\n  \"usuarioId\": {{usuarioIdCliente}},\n  \"itens\": [\n    { \"produtoId\": {{produtoId}}, \"quantidade\": 1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 422\", function () { pm.response.to.have.status(422); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"CANAL_INVALIDO\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T13 - Pedido com quantidade negativa (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"canalPedido\": \"APP\",\n  \"unidadeId\": {{unidadeId}},\n  \"usuarioId\": {{usuarioIdCliente}},\n  \"itens\": [\n    { \"produtoId\": {{produtoId}}, \"quantidade\": -1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 422\", function () { pm.response.to.have.status(422); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"QUANTIDADE_INVALIDA\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T14 - Pedido com produto inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"canalPedido\": \"APP\",\n  \"unidadeId\": {{unidadeId}},\n  \"usuarioId\": {{usuarioIdCliente}},\n  \"itens\": [\n    { \"produtoId\": 999999, \"quantidade\": 1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"NAO_ENCONTRADO\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T15 - Pedido com estoque insuficiente (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"canalPedido\": \"BALCAO\",\n  \"unidadeId\": {{unidadeId}},\n  \"usuarioId\": {{usuarioIdCliente}},\n  \"itens\": [\n    { \"produtoId\": {{produtoId}}, \"quantidade\": 100000 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"ESTOQUE_INSUFICIENTE\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T16 - Pagar pedido que ja foi pago (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}/pagamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos",
+                "{{pedidoId}}",
+                "pagamento"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statusPagamento\": \"APROVADO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Erro no JSON padrao (error, message, timestamp, path)\", function () {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.error).to.eql(\"STATUS_INVALIDO\");",
+                  "  pm.expect(j).to.have.property(\"message\");",
+                  "  pm.expect(j).to.have.property(\"timestamp\");",
+                  "  pm.expect(j).to.have.property(\"path\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
-  "security": [
+  "variable": [
     {
-      "bearer-key": []
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "unidadeId",
+      "value": "1"
+    },
+    {
+      "key": "produtoId",
+      "value": "2"
+    },
+    {
+      "key": "emailGerente",
+      "value": ""
+    },
+    {
+      "key": "emailCliente",
+      "value": ""
+    },
+    {
+      "key": "tokenGerente",
+      "value": ""
+    },
+    {
+      "key": "tokenCliente",
+      "value": ""
+    },
+    {
+      "key": "usuarioIdGerente",
+      "value": ""
+    },
+    {
+      "key": "usuarioIdCliente",
+      "value": ""
+    },
+    {
+      "key": "pedidoId",
+      "value": ""
+    },
+    {
+      "key": "pedidoRecusadoId",
+      "value": ""
     }
-  ],
-  "paths": {
-    "/usuarios/{id}": {
-      "get": {
-        "tags": [
-          "usuario-controller"
-        ],
-        "operationId": "buscarUsuarioPorId",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Usuario"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "usuario-controller"
-        ],
-        "operationId": "atualizarUsuario",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Usuario"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Usuario"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "usuario-controller"
-        ],
-        "operationId": "deletarUsuario",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/unidades/{id}": {
-      "get": {
-        "tags": [
-          "unidade-controller"
-        ],
-        "operationId": "buscarUnidadePorId",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Unidade"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "unidade-controller"
-        ],
-        "operationId": "atualizarUnidade",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Unidade"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Unidade"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "unidade-controller"
-        ],
-        "operationId": "deletarUnidade",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/produtos/{id}": {
-      "get": {
-        "tags": [
-          "produto-controller"
-        ],
-        "operationId": "buscarProdutoPorId",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Produto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "produto-controller"
-        ],
-        "operationId": "atualizarProduto",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Produto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Produto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "produto-controller"
-        ],
-        "operationId": "deletarProduto",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/pedidos/{id}": {
-      "get": {
-        "tags": [
-          "pedido-controller"
-        ],
-        "operationId": "buscarPedidoPorId",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Pedido"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "pedido-controller"
-        ],
-        "operationId": "atualizarPedido",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Pedido"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Pedido"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "pedido-controller"
-        ],
-        "operationId": "deletarPedido",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/pedidos/{id}/pagamento": {
-      "put": {
-        "tags": [
-          "pedido-controller"
-        ],
-        "operationId": "processarPagamento",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PagamentoRequestDTO"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Pedido"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/itens-pedido/{id}": {
-      "get": {
-        "tags": [
-          "item-pedido-controller"
-        ],
-        "operationId": "buscarItemPorId",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ItemPedido"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "item-pedido-controller"
-        ],
-        "operationId": "atualizarItem",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemPedido"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ItemPedido"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "item-pedido-controller"
-        ],
-        "operationId": "deletarItem",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/estoques/{id}": {
-      "get": {
-        "tags": [
-          "estoque-controller"
-        ],
-        "operationId": "buscarEstoquePorId",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Estoque"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "estoque-controller"
-        ],
-        "operationId": "atualizarEstoque",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Estoque"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Estoque"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "estoque-controller"
-        ],
-        "operationId": "deletarEstoque",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/usuarios": {
-      "get": {
-        "tags": [
-          "usuario-controller"
-        ],
-        "operationId": "listarUsuarios",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "usuario-controller"
-        ],
-        "operationId": "criarUsuario",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Usuario"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Usuario"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/unidades": {
-      "get": {
-        "tags": [
-          "unidade-controller"
-        ],
-        "operationId": "listarUnidades",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "unidade-controller"
-        ],
-        "operationId": "criarUnidade",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Unidade"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Unidade"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/produtos": {
-      "get": {
-        "tags": [
-          "produto-controller"
-        ],
-        "operationId": "listarProdutos",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "produto-controller"
-        ],
-        "operationId": "criarProduto",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Produto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Produto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/pedidos": {
-      "get": {
-        "tags": [
-          "pedido-controller"
-        ],
-        "operationId": "listarPedidos",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "pedido-controller"
-        ],
-        "operationId": "criarPedido",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PedidoRequestDTO"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Pedido"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/itens-pedido": {
-      "get": {
-        "tags": [
-          "item-pedido-controller"
-        ],
-        "operationId": "listarItens",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "item-pedido-controller"
-        ],
-        "operationId": "criarItemPedido",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ItemPedido"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ItemPedido"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/estoques": {
-      "get": {
-        "tags": [
-          "estoque-controller"
-        ],
-        "operationId": "listarEstoques",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "estoque-controller"
-        ],
-        "operationId": "criarEstoque",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Estoque"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/Estoque"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/registrar": {
-      "post": {
-        "tags": [
-          "auth-controller"
-        ],
-        "operationId": "registrar",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DadosCadastroUsuarioDTO"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "tags": [
-          "auth-controller"
-        ],
-        "operationId": "efetuarLogin",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DadosLoginDTO"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/TokenResponseDTO"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "GrantedAuthority": {
-        "type": "object",
-        "properties": {
-          "authority": {
-            "type": "string"
-          }
-        }
-      },
-      "Usuario": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "nome": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "perfil": {
-            "type": "string",
-            "enum": [
-              "CLIENTE",
-              "ATENDENTE",
-              "GERENTE",
-              "ADMINISTRADOR"
-            ]
-          },
-          "enabled": {
-            "type": "boolean"
-          },
-          "authorities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GrantedAuthority"
-            }
-          },
-          "accountNonExpired": {
-            "type": "boolean"
-          },
-          "credentialsNonExpired": {
-            "type": "boolean"
-          },
-          "accountNonLocked": {
-            "type": "boolean"
-          },
-          "username": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "Unidade": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "nome": {
-            "type": "string"
-          },
-          "cnpj": {
-            "type": "string"
-          },
-          "endereco": {
-            "type": "string"
-          },
-          "ativa": {
-            "type": "boolean"
-          }
-        }
-      },
-      "Produto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "nome": {
-            "type": "string"
-          },
-          "precoBase": {
-            "type": "number"
-          }
-        }
-      },
-      "Pedido": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "usuario": {
-            "$ref": "#/components/schemas/Usuario"
-          },
-          "unidade": {
-            "$ref": "#/components/schemas/Unidade"
-          },
-          "canalPedido": {
-            "type": "string",
-            "enum": [
-              "APP",
-              "TOTEM",
-              "BALCAO"
-            ]
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "AGUARDANDO_PAGAMENTO",
-              "PAGO"
-            ]
-          },
-          "valorTotal": {
-            "type": "number"
-          }
-        }
-      },
-      "PagamentoRequestDTO": {
-        "type": "object",
-        "properties": {
-          "statusPagamento": {
-            "type": "string"
-          }
-        }
-      },
-      "ItemPedido": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "pedido": {
-            "$ref": "#/components/schemas/Pedido"
-          },
-          "produto": {
-            "$ref": "#/components/schemas/Produto"
-          },
-          "quantidade": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "precoUnitario": {
-            "type": "number"
-          }
-        }
-      },
-      "Estoque": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "unidade": {
-            "$ref": "#/components/schemas/Unidade"
-          },
-          "produto": {
-            "$ref": "#/components/schemas/Produto"
-          },
-          "quantidade": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "ItemPedidoRequestDTO": {
-        "type": "object",
-        "properties": {
-          "produtoId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "quantidade": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "PedidoRequestDTO": {
-        "type": "object",
-        "properties": {
-          "unidadeId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "usuarioId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "canalPedido": {
-            "type": "string"
-          },
-          "formaPagamento": {
-            "type": "string"
-          },
-          "itens": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ItemPedidoRequestDTO"
-            }
-          }
-        }
-      },
-      "DadosCadastroUsuarioDTO": {
-        "type": "object",
-        "properties": {
-          "nome": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "senha": {
-            "type": "string"
-          },
-          "perfil": {
-            "type": "string",
-            "enum": [
-              "CLIENTE",
-              "ATENDENTE",
-              "GERENTE",
-              "ADMINISTRADOR"
-            ]
-          }
-        }
-      },
-      "DadosLoginDTO": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "senha": {
-            "type": "string"
-          }
-        }
-      },
-      "TokenResponseDTO": {
-        "type": "object",
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearer-key": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
-    }
-  }
+  ]
 }

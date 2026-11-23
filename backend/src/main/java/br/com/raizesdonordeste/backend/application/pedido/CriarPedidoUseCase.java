@@ -6,6 +6,8 @@ import br.com.raizesdonordeste.backend.domain.estoque.Estoque;
 import br.com.raizesdonordeste.backend.domain.exception.RecursoNaoEncontradoException;
 import br.com.raizesdonordeste.backend.domain.exception.RegraNegocioException;
 import br.com.raizesdonordeste.backend.domain.itemPedido.ItemPedido;
+import br.com.raizesdonordeste.backend.domain.exception.ValidacaoException;
+import br.com.raizesdonordeste.backend.domain.pedido.CanalPedido;
 import br.com.raizesdonordeste.backend.domain.pedido.Pedido;
 import br.com.raizesdonordeste.backend.domain.produto.Produto;
 import br.com.raizesdonordeste.backend.domain.unidade.Unidade;
@@ -47,9 +49,7 @@ public class CriarPedidoUseCase {
 
     @Transactional
     public Pedido executar(PedidoRequestDTO dto) {
-        if (dto.getCanalPedido() == null || dto.getCanalPedido().trim().isEmpty()) {
-            throw new RegraNegocioException("CANAL_OBRIGATORIO", "O preenchimento do canalPedido é obrigatório (Ex: APP, TOTEM, BALCAO).");
-        }
+        CanalPedido canal = validarEntrada(dto);
 
         Unidade unidade = unidadeRepository.findById(dto.getUnidadeId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Unidade não encontrada."));
@@ -60,7 +60,7 @@ public class CriarPedidoUseCase {
         Pedido pedido = new Pedido();
         pedido.setUnidade(unidade);
         pedido.setUsuario(usuario);
-        pedido.setCanalPedido(br.com.raizesdonordeste.backend.domain.pedido.CanalPedido.valueOf(dto.getCanalPedido().toUpperCase()));
+        pedido.setCanalPedido(canal);
         pedido.setStatus(br.com.raizesdonordeste.backend.domain.pedido.StatusPedido.valueOf("AGUARDANDO_PAGAMENTO"));
         pedido.setValorTotal(BigDecimal.ZERO);
 
@@ -100,6 +100,38 @@ public class CriarPedidoUseCase {
 
         pedido.setValorTotal(valorTotal);
         return pedidoRepository.save(pedido);
+    }
+
+    private CanalPedido validarEntrada(PedidoRequestDTO dto) {
+        if (dto.getCanalPedido() == null || dto.getCanalPedido().trim().isEmpty()) {
+            throw new ValidacaoException("CANAL_OBRIGATORIO", "canalPedido",
+                    "O preenchimento do canalPedido e obrigatorio (valores aceitos: APP, TOTEM, BALCAO).");
+        }
+        CanalPedido canal;
+        try {
+            canal = CanalPedido.valueOf(dto.getCanalPedido().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ValidacaoException("CANAL_INVALIDO", "canalPedido",
+                    "Canal invalido: " + dto.getCanalPedido() + " (valores aceitos: APP, TOTEM, BALCAO).");
+        }
+        if (dto.getUnidadeId() == null) {
+            throw new ValidacaoException("CAMPO_OBRIGATORIO", "unidadeId", "O campo unidadeId e obrigatorio.");
+        }
+        if (dto.getUsuarioId() == null) {
+            throw new ValidacaoException("CAMPO_OBRIGATORIO", "usuarioId", "O campo usuarioId e obrigatorio.");
+        }
+        if (dto.getItens() == null || dto.getItens().isEmpty()) {
+            throw new ValidacaoException("CAMPO_OBRIGATORIO", "itens", "O pedido deve ter ao menos um item.");
+        }
+        for (ItemPedidoRequestDTO item : dto.getItens()) {
+            if (item.getProdutoId() == null) {
+                throw new ValidacaoException("CAMPO_OBRIGATORIO", "itens.produtoId", "Todo item deve informar o produtoId.");
+            }
+            if (item.getQuantidade() == null || item.getQuantidade() <= 0) {
+                throw new ValidacaoException("QUANTIDADE_INVALIDA", "itens.quantidade", "A quantidade deve ser maior que zero.");
+            }
+        }
+        return canal;
     }
 
     private Estoque buscarEstoque(Unidade unidade, Produto produto) {

@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/produtos"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{tokenGerente}}
+body:
+  type: json
+  content: |-
+    {
+      "nome": "Cuscuz Recheado",
+      "precoBase": 18.5
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200", function () { pm.response.to.have.status(200); });
+      pm.test("Produto criado com id", function () {
+        const j = pm.response.json();
+        pm.expect(j.id).to.be.a("number");
+        pm.expect(j.nome).to.eql("Cuscuz Recheado");
+      });
+    language: text/javascript
+order: 1000

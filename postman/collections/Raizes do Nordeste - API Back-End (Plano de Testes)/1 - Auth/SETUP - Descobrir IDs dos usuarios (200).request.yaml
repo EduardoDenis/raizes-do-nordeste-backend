@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{baseUrl}}/usuarios"
+method: GET
+headers:
+  Authorization: Bearer {{tokenGerente}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200", function () { pm.response.to.have.status(200); });
+      const lista = pm.response.json();
+      const g = lista.find(u => u.email === pm.collectionVariables.get("emailGerente"));
+      const c = lista.find(u => u.email === pm.collectionVariables.get("emailCliente"));
+      pm.test("Encontrou os usuarios criados", function () { pm.expect(g).to.exist; pm.expect(c).to.exist; });
+      pm.test("Senha nao e exposta na resposta", function () { pm.expect(g).to.not.have.property("senha"); pm.expect(g).to.not.have.property("password"); });
+      pm.collectionVariables.set("usuarioIdGerente", g.id);
+      pm.collectionVariables.set("usuarioIdCliente", c.id);
+    language: text/javascript
+order: 5000

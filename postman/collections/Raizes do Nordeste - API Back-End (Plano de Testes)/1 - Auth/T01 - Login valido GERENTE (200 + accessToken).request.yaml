@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{emailGerente}}",
+      "senha": "Senha@123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200", function () { pm.response.to.have.status(200); });
+      pm.test("Retorna accessToken JWT", function () {
+        const j = pm.response.json();
+        pm.expect(j.accessToken).to.be.a("string").and.not.empty;
+        pm.collectionVariables.set("tokenGerente", j.accessToken);
+      });
+    language: text/javascript
+order: 3000

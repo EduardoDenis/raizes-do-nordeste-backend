@@ -1,0 +1,23 @@
+$kind: http-request
+description: Cria um usuario GERENTE com e-mail unico a cada execucao. Rota publica.
+url: "{{baseUrl}}/auth/registrar"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nome": "Gerente Teste",
+      "email": "{{emailGerente}}",
+      "senha": "Senha@123",
+      "perfil": "GERENTE"
+    }
+scripts:
+  - type: beforeRequest
+    code: pm.collectionVariables.set("emailGerente", "gerente." + Date.now() + "@teste.com");
+    language: text/javascript
+  - type: afterResponse
+    code: pm.test("Status 201 (usuario criado)", function () { pm.response.to.have.status(201); });
+    language: text/javascript
+order: 1000

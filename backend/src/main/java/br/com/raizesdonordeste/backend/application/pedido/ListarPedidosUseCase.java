@@ -1,5 +1,6 @@
 package br.com.raizesdonordeste.backend.application.pedido;
 
+import br.com.raizesdonordeste.backend.domain.pedido.CanalPedido;
 import br.com.raizesdonordeste.backend.domain.pedido.Pedido;
 import br.com.raizesdonordeste.backend.infrastructure.pedido.PedidoRepository;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,10 @@ public class ListarPedidosUseCase {
         this.repository = repository;
     }
 
-    public Iterable<Pedido> executar() {
+    public Iterable<Pedido> executar(CanalPedido canalPedido) {
+        if (canalPedido != null) {
+            return repository.findByCanalPedido(canalPedido);
+        }
         return repository.findAll();
     }
 }

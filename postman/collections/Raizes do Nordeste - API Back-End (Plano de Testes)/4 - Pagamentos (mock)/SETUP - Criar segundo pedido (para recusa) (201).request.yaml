@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/pedidos"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{tokenCliente}}
+body:
+  type: json
+  content: |-
+    {
+      "canalPedido": "APP",
+      "unidadeId": {{unidadeId}},
+      "usuarioId": {{usuarioIdCliente}},
+      "itens": [
+        { "produtoId": {{produtoId}}, "quantidade": 1 }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 201", function () { pm.response.to.have.status(201); });
+      pm.collectionVariables.set("pedidoRecusadoId", pm.response.json().id);
+    language: text/javascript
+order: 2000

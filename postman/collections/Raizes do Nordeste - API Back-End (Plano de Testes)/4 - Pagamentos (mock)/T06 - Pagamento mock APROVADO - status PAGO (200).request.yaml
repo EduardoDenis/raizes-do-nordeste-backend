@@ -1,0 +1,20 @@
+$kind: http-request
+name: T06 - Pagamento mock APROVADO -> status PAGO (200)
+url: "{{baseUrl}}/pedidos/{{pedidoId}}/pagamento"
+method: PUT
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{tokenCliente}}
+body:
+  type: json
+  content: |-
+    {
+      "statusPagamento": "APROVADO"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200", function () { pm.response.to.have.status(200); });
+      pm.test("Status do pedido atualizado para PAGO", function () { pm.expect(pm.response.json().status).to.eql("PAGO"); });
+    language: text/javascript
+order: 1000

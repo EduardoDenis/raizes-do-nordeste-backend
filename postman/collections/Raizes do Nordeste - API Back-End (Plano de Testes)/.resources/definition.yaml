@@ -1,0 +1,14 @@
+$kind: collection
+description: "Colecao do Plano de Testes. Execute as pastas na ordem (1 a 5), ou rode a colecao inteira no Collection Runner/newman. Pre-requisitos: API em http://localhost:8080 e banco com o script.sql aplicado (unidade 1, produtos 1-3 e estoque). Os usuarios sao criados automaticamente (e-mails unicos) e os tokens JWT ficam em variaveis da colecao."
+variables:
+  baseUrl: http://localhost:8080
+  unidadeId: "1"
+  produtoId: "2"
+  emailGerente: ""
+  emailCliente: ""
+  tokenGerente: ""
+  tokenCliente: ""
+  usuarioIdGerente: ""
+  usuarioIdCliente: ""
+  pedidoId: ""
+  pedidoRecusadoId: ""

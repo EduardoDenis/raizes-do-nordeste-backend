@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/pedidos/{{pedidoId}}"
+method: GET
+headers:
+  Authorization: Bearer {{tokenCliente}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200", function () { pm.response.to.have.status(200); });
+      pm.test("Retorna o pedido criado", function () { pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get("pedidoId"))); });
+    language: text/javascript
+order: 2000

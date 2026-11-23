@@ -20,9 +20,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfigurations {
 
     private final SecurityFilter securityFilter;
+    private final RespostaErroSeguranca respostaErroSeguranca;
 
-    public SecurityConfigurations(SecurityFilter securityFilter) {
+    public SecurityConfigurations(SecurityFilter securityFilter, RespostaErroSeguranca respostaErroSeguranca) {
         this.securityFilter = securityFilter;
+        this.respostaErroSeguranca = respostaErroSeguranca;
     }
 
     @Bean
@@ -37,6 +39,9 @@ public class SecurityConfigurations {
 
                     req.anyRequest().authenticated();
                 })
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(respostaErroSeguranca)
+                        .accessDeniedHandler(respostaErroSeguranca))
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

@@ -1,0 +1,31 @@
+$kind: http-request
+description: "Seed: produto 2 (Tapioca Rendada) custa R$ 15,00 -> 2 unidades = R$ 30,00. Abate 2 unidades do estoque da unidade 1."
+url: "{{baseUrl}}/pedidos"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{tokenCliente}}
+body:
+  type: json
+  content: |-
+    {
+      "canalPedido": "TOTEM",
+      "unidadeId": {{unidadeId}},
+      "usuarioId": {{usuarioIdCliente}},
+      "itens": [
+        { "produtoId": {{produtoId}}, "quantidade": 2 }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 201", function () { pm.response.to.have.status(201); });
+      pm.test("Pedido criado com canal e status corretos", function () {
+        const j = pm.response.json();
+        pm.expect(j.canalPedido).to.eql("TOTEM");
+        pm.expect(j.status).to.eql("AGUARDANDO_PAGAMENTO");
+        pm.expect(Number(j.valorTotal)).to.eql(30);
+        pm.collectionVariables.set("pedidoId", j.id);
+      });
+    language: text/javascript
+order: 1000
